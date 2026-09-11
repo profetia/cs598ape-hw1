@@ -1,4 +1,4 @@
-FUNC := clang++
+FUNC := icpx
 output := -o 
 copt := -c 
 SRC_DIR := ./

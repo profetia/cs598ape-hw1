@@ -1,4 +1,4 @@
-FUNC := clang++
+FUNC := icpx
 copt := -c 
 output :=-o 
 FLAGS := -O3 -march=native -flto -g -Werror
