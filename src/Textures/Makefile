@@ -1,7 +1,7 @@
-FUNC := g++
+FUNC := clang++
 copt := -c 
 output :=-o 
-FLAGS := -O3 -g -Werror
+FLAGS := -O3 -march=native -flto -g -Werror
 OBJ_DIR :=./
 
 CPP_FILES := $(wildcard *.cpp)
