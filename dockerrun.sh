@@ -1,1 +1,3 @@
-docker run -it --security-opt seccomp=unconfined -v "$(pwd):/host" wsmoses/598ape /bin/bash
+#!/bin/bash
+
+docker run --rm --security-opt seccomp=unconfined -v "$(pwd):/host" -w /host "$USER/598ape" "$@"
