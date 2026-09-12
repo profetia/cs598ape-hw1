@@ -1,7 +1,7 @@
 FUNC := icpx
 copt := -c 
 OBJ_DIR := ./bin/
-FLAGS := -O3 -march=native -flto -lm -g -Werror
+FLAGS := -O3 -march=native -flto -lm -g -Werror -qopenmp
 
 CPP_FILES := $(wildcard src/*.cpp)
 OBJ_FILES := $(addprefix $(OBJ_DIR),$(notdir $(CPP_FILES:.cpp=.obj)))
