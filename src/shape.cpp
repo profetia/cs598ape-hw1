@@ -31,7 +31,7 @@ void Shape::setRoll(double c){
    zsin = sin(roll);
 }
 
-void calcColor(unsigned char* toFill,Autonoma* c, Ray ray, unsigned int depth){
+void calcColor(unsigned char* toFill,Autonoma* c, const Ray& ray, unsigned int depth){
    ShapeNode* t = c->listStart;
    double curTime = inf;
    Shape* curShape = NULL;

@@ -23,20 +23,20 @@ public:
   void operator /= (const float);
   void operator /= (const int);
   
-  Vector operator + (const Vector);
-  Vector operator - (const Vector);
+  Vector operator + (const Vector) const;
+  Vector operator - (const Vector) const;
 /*  Vector operator * (const Vector);*/
-  Vector operator * (const double);
-  Vector operator * (const float);
-  Vector operator * (const int);
+  Vector operator * (const double) const;
+  Vector operator * (const float) const;
+  Vector operator * (const int) const;
   Vector operator / (const double);
   Vector operator / (const float);
   Vector operator / (const int);
   Vector cross(const Vector a);
-  double mag2();
-  double mag();
-  double dot(const Vector a);
-  Vector normalize();
+  double mag2() const;
+  double mag() const;
+  double dot(const Vector a) const;
+  Vector normalize() const;
 } ;
 
 class Ray{

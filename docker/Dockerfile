@@ -26,5 +26,5 @@ RUN curl -fsSL https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-P
 
 RUN ln -s /usr/bin/convert /usr/bin/magick
 
-ENV PATH="/opt/intel/oneapi/compiler/latest/bin:${PATH}"
+ENV PATH="/opt/intel/oneapi/compiler/latest/bin:/usr/lib/linux-tools/6.8.0-139-generic:${PATH}"
 ENV DEBIAN_FRONTEND=
