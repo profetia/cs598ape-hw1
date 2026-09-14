@@ -237,9 +237,9 @@ Autonoma *createInputs(const char *inputFile) {
                  "<color_g> <color_b>\n");
           exit(1);
         }
-        Light *light = new Light(Vector(light_x, light_y, light_z),
-                                 getColor(color_r, color_g, color_b));
-        MAIN_DATA->addLight(light);
+        Light light = Light(Vector(light_x, light_y, light_z),
+                            getColor(color_r, color_g, color_b));
+        MAIN_DATA->addLight(std::move(light));
       } else if (streq(object_type, "plane")) {
         double plane_x, plane_y, plane_z;
         double yaw, pitch, roll;
@@ -427,17 +427,12 @@ void setFrame(const char *animateFile, Autonoma *MAIN_DATA, int frame,
           exit(1);
         }
       } else if (streq(object_type, "object")) {
-        ShapeNode *node = MAIN_DATA->listStart;
-        for (int i = 0; i < obj_num; i++) {
-          if (node == MAIN_DATA->listEnd) {
-            printf("Could not find object number %d\n", obj_num);
-            exit(1);
-          }
-          if (i == obj_num)
-            break;
-          node = node->next;
+        if (obj_num >= MAIN_DATA->shapes.size()) {
+          printf("Could not find object number %d\n", obj_num);
+          exit(1);
         }
-        Shape *shape = node->data;
+
+        Shape *shape = MAIN_DATA->shapes[obj_num];
 
         if (streq(field_type, "yaw")) {
           shape->setYaw(result);
