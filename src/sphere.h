@@ -2,7 +2,7 @@
 #define __SPHERE_H__
 #include "shape.h"
 
-class Sphere : public Shape {
+class Sphere final : public Shape {
 public:
   double radius;
   Sphere(const Vector &c, Texture *t, double ya, double pi, double ro,

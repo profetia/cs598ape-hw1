@@ -2,7 +2,7 @@
 #define __DISK_H__
 #include "plane.h"
 
-class Disk : public Plane {
+class Disk final : public Plane {
 public:
   Disk(const Vector &c, Texture *t, double ya, double pi, double ro, double tx,
        double ty);
