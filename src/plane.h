@@ -3,15 +3,17 @@
 
 #include "shape.h"
 
-class Plane : public Shape{
+class Plane : public Shape {
 public:
   Vector vect, right, up;
   double d;
-  Plane(const Vector &c, Texture* t, double ya, double pi, double ro, double tx, double ty);
-  double getIntersection(const Ray& ray);
-  bool getLightIntersection(const Ray& ray, double* toFill);
+  Plane(const Vector &c, Texture *t, double ya, double pi, double ro, double tx,
+        double ty);
+  double getIntersection(const Ray &ray);
+  bool getLightIntersection(const Ray &ray, double *toFill);
   void move();
-  void getColor(unsigned char* toFill, double* am, double* op, double* ref, Autonoma* r, const Ray& ray, unsigned int depth);
+  void getColor(unsigned char *toFill, double *am, double *op, double *ref,
+                Autonoma *r, const Ray &ray, unsigned int depth);
   Vector getNormal(Vector point);
   unsigned char reversible();
   void setAngles(double yaw, double pitch, double roll);

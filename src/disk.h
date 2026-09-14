@@ -2,11 +2,12 @@
 #define __DISK_H__
 #include "plane.h"
 
-class Disk : public Plane{
+class Disk : public Plane {
 public:
-  Disk(const Vector &c, Texture* t, double ya, double pi, double ro, double tx, double ty);
-  double getIntersection(const Ray& ray);
-  bool getLightIntersection(const Ray& ray, double* fill);
+  Disk(const Vector &c, Texture *t, double ya, double pi, double ro, double tx,
+       double ty);
+  double getIntersection(const Ray &ray);
+  bool getLightIntersection(const Ray &ray, double *fill);
 };
 
 #endif
