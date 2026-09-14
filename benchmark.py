@@ -4,6 +4,7 @@ import argparse
 import csv
 import datetime
 import re
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -77,6 +78,7 @@ parser.add_argument("--ops", nargs="*")
 parser.add_argument("--csv", action="store_true")
 args = parser.parse_args()
 
+dirty = not args.commits
 commits = args.commits or ["HEAD"]
 names = args.ops or list(ops)
 
@@ -93,6 +95,20 @@ subprocess.run(
     cwd=root, check=True
 )
 
+if dirty:
+    patch = subprocess.check_output(
+        ["git", "diff", "HEAD", "--binary"], cwd=root
+    )
+    subprocess.run(["git", "apply"], cwd=worktree, input=patch, check=True)
+    untracked = subprocess.check_output(
+        ["git", "ls-files", "--others", "--exclude-standard", "-z"],
+        cwd=root
+    ).decode().split("\0")
+    for name in untracked[:-1]:
+        target = worktree / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(root / name, target)
+
 rows = []
 timer = re.compile(r"Total time to create images=([0-9.]+) seconds")
 
@@ -100,10 +116,11 @@ for commit in commits:
     commit_id = subprocess.check_output(
         ["git", "rev-parse", commit], cwd=root, text=True
     ).strip()
-    subprocess.run(
-        ["git", "checkout", "--detach", "--force", commit_id],
-        cwd=worktree, check=True
-    )
+    if not dirty:
+        subprocess.run(
+            ["git", "checkout", "--detach", "--force", commit_id],
+            cwd=worktree, check=True
+        )
 
     docker(worktree, ["make", "clean"])
     docker(worktree, ["make", "-j4"])
@@ -111,7 +128,8 @@ for commit in commits:
         elephant_input(worktree)
 
     values = {}
-    print("\n" + commit + " (" + commit_id[:12] + ")")
+    label = "working tree" if dirty else commit
+    print("\n" + label + " (" + commit_id[:12] + ")")
     for name in names:
         times = []
         for number in range(runs):
@@ -122,7 +140,7 @@ for commit in commits:
                   (name, number + 1, runs, seconds))
         values[name] = min(times)
 
-    rows.append((commit + " (" + commit_id[:12] + ")", values))
+    rows.append((label + " (" + commit_id[:12] + ")", values))
 
 print()
 show_table(names, rows)
