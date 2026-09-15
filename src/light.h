@@ -11,6 +11,7 @@ public:
   unsigned char *getColor(unsigned char a, unsigned char b, unsigned char c);
   Vector center;
   Light(const Vector &cente, unsigned char *colo);
+  ~Light();
 };
 
 struct LightNode {
@@ -33,6 +34,7 @@ public:
   LightNode *lightStart, *lightEnd;
   Autonoma(const Camera &c);
   Autonoma(const Camera &c, Texture *tex);
+  ~Autonoma();
   void addShape(Shape *s);
   void removeShape(ShapeNode *s);
   void addLight(Light *s);

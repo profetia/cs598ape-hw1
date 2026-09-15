@@ -2,10 +2,13 @@
 #include "light.h"
 #include "camera.h"
 #include "shape.h"
+#include <unordered_set>
 
 Light::Light(const Vector &cente, unsigned char *colo) : center(cente) {
   color = colo;
 }
+
+Light::~Light() { free(color); }
 
 unsigned char *Light::getColor(unsigned char a, unsigned char b,
                                unsigned char c) {
@@ -32,6 +35,31 @@ Autonoma::Autonoma(const Camera &c, Texture *tex) : camera(c) {
   lightEnd = NULL;
   depth = 10;
   skybox = tex;
+}
+
+Autonoma::~Autonoma() {
+  std::unordered_set<Texture *> textures;
+  textures.insert(skybox);
+
+  while (listStart != NULL) {
+    ShapeNode *next = listStart->next;
+    textures.insert(listStart->data->texture);
+    if (listStart->data->normalMap != NULL)
+      textures.insert(listStart->data->normalMap);
+    delete listStart->data;
+    free(listStart);
+    listStart = next;
+  }
+
+  while (lightStart != NULL) {
+    LightNode *next = lightStart->next;
+    delete lightStart->data;
+    free(lightStart);
+    lightStart = next;
+  }
+
+  for (Texture *texture : textures)
+    delete texture;
 }
 
 void Autonoma::addShape(Shape *r) {
