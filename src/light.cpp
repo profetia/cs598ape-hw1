@@ -2,10 +2,13 @@
 #include "camera.h"
 #include "light.h"
 #include "shape.h"
+#include <unordered_set>
 
 Light::Light(const Vector &cente, unsigned char *colo) : center(cente) {
   color = colo;
 }
+
+Light::~Light() { free(color); }
 
 unsigned char *Light::getColor(unsigned char a, unsigned char b,
                                unsigned char c) {
@@ -26,26 +29,52 @@ Autonoma::Autonoma(const Camera &c, Texture *tex) : camera(c) {
   skybox = tex;
 }
 
+Autonoma::~Autonoma() {
+  std::unordered_set<Texture *> textures;
+  textures.insert(skybox);
+
+  for (Shape *shape : shapes) {
+    textures.insert(shape->texture);
+    if (shape->normalMap != NULL)
+      textures.insert(shape->normalMap);
+    delete shape;
+  }
+
+  for (Light *light : lights)
+    delete light;
+
+  for (Texture *texture : textures)
+    delete texture;
+}
+
 void Autonoma::addShape(Shape *s) { shapes.push_back(s); }
-void Autonoma::addLight(Light &&r) { lights.push_back(r); }
+void Autonoma::addLight(Light *s) { lights.push_back(s); }
 
 void getLight(double *tColor, Autonoma *aut, Vector point, Vector norm,
               unsigned char flip) {
+  tColor[0] = tColor[1] = tColor[2] = 0.;
 
-  auto handleLight = [&](const Light &t) {
+  for (Light *light : aut->lights) {
     double lightColor[3];
-    lightColor[0] = t.color[0] / 255.;
-    lightColor[1] = t.color[1] / 255.;
-    lightColor[2] = t.color[2] / 255.;
-    Vector ra = t.center - point;
+    lightColor[0] = light->color[0] / 255.;
+    lightColor[1] = light->color[1] / 255.;
+    lightColor[2] = light->color[2] / 255.;
+    Vector ra = light->center - point;
 
+    bool hit = false;
     for (Shape *s : aut->shapes) {
-      if (s->getLightIntersection(Ray(point + ra * 0.01, ra), lightColor))
-        return;
-      double perc = (norm.dot(ra) / (ra.mag() * norm.mag()));
+      if (s->getLightIntersection(Ray(point + ra * .01, ra), lightColor)) {
+        hit = true;
+        break;
+      }
+    }
+
+    double perc = (norm.dot(ra) / (ra.mag() * norm.mag()));
+    if (!hit) {
       if (flip && perc < 0)
         perc = -perc;
       if (perc > 0) {
+
         tColor[0] += perc * (lightColor[0]);
         tColor[1] += perc * (lightColor[0]);
         tColor[2] += perc * (lightColor[0]);
@@ -57,9 +86,5 @@ void getLight(double *tColor, Autonoma *aut, Vector point, Vector norm,
           tColor[2] = 1.;
       }
     }
-  };
-
-  tColor[0] = tColor[1] = tColor[2] = 0.;
-  for (const Light &t : aut->lights)
-    handleLight(t);
+  }
 }

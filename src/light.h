@@ -13,6 +13,7 @@ public:
   unsigned char *getColor(unsigned char a, unsigned char b, unsigned char c);
   Vector center;
   Light(const Vector &cente, unsigned char *colo);
+  ~Light();
 };
 
 class Shape;
@@ -25,12 +26,12 @@ public:
 
   std::vector<Shape *> shapes;
 
-  std::vector<Light> lights;
+  std::vector<Light *> lights;
   Autonoma(const Camera &c);
   Autonoma(const Camera &c, Texture *tex);
-
+  ~Autonoma();
   void addShape(Shape *s);
-  void addLight(Light &&s);
+  void addLight(Light *s);
 };
 
 void getLight(double *toFill, Autonoma *aut, Vector point, Vector norm,

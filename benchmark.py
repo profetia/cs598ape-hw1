@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 root = Path(__file__).resolve().parent
-runs = 10
+runs = 5
 
 ops = {
     "pianoroom": [

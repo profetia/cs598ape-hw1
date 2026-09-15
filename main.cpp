@@ -31,8 +31,7 @@ unsigned char *getColor(unsigned char a, unsigned char b, unsigned char c) {
 
 int W = 1000, H = 1000;
 
-unsigned char *DATA =
-    (unsigned char *)malloc(W * H * 3 * sizeof(unsigned char));
+unsigned char *DATA;
 unsigned char get(int i, int j, int k) { return DATA[3 * (i + j * W) + k]; }
 unsigned char *getPos(int i, int j) { return &DATA[3 * (i + j * W)]; }
 void set(int i, int j, unsigned char r, unsigned char g, unsigned char b) {
@@ -237,9 +236,9 @@ Autonoma *createInputs(const char *inputFile) {
                  "<color_g> <color_b>\n");
           exit(1);
         }
-        Light light = Light(Vector(light_x, light_y, light_z),
-                            getColor(color_r, color_g, color_b));
-        MAIN_DATA->addLight(std::move(light));
+        Light *light = new Light(Vector(light_x, light_y, light_z),
+                                 getColor(color_r, color_g, color_b));
+        MAIN_DATA->addLight(light);
       } else if (streq(object_type, "plane")) {
         double plane_x, plane_y, plane_z;
         double yaw, pitch, roll;
@@ -355,11 +354,14 @@ Autonoma *createInputs(const char *inputFile) {
           MAIN_DATA->addShape(shape);
           shape->normalMap = normalMap;
         }
+        free(points);
+        free(polys);
       } else {
         printf("Unknown object type %s\n", object_type);
         exit(1);
       }
     }
+    fclose(f);
   }
 
   return MAIN_DATA;
@@ -464,6 +466,7 @@ void setFrame(const char *animateFile, Autonoma *MAIN_DATA, int frame,
         exit(1);
       }
     }
+    fclose(f);
   }
 
   refresh(MAIN_DATA);
@@ -567,6 +570,8 @@ int main(int argc, const char **argv) {
     }
   }
 
+  DATA = (unsigned char *)malloc(W * H * 3 * sizeof(unsigned char));
+
   Autonoma *MAIN_DATA = createInputs(inFile);
 
   int frame;
@@ -608,7 +613,12 @@ int main(int argc, const char **argv) {
                "24 %s",
                outFile, outFile, outFile, outFile);
     }
-    return system(command);
+    int result = system(command);
+    delete MAIN_DATA;
+    free(DATA);
+    return result;
   }
+  delete MAIN_DATA;
+  free(DATA);
   return 0;
 }
