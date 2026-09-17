@@ -1,4 +1,4 @@
-FUNC := icpx
+FUNC := g++
 copt := -c 
 output :=-o 
 FLAGS := -O3 -march=native -flto -g -Werror

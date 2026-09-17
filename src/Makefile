@@ -1,4 +1,4 @@
-FUNC := icpx
+FUNC := g++
 output := -o 
 copt := -c 
 SRC_DIR := ./

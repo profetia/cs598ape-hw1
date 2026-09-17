@@ -1,4 +1,4 @@
-FUNC := icpx
+FUNC := g++
 copt := -c 
 OBJ_DIR := ./bin/
 FLAGS := -O3 -march=native -flto -lm -g -Werror
