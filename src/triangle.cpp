@@ -1,89 +1,55 @@
 #include "triangle.h"
+#include "vector.h"
 
 Triangle::Triangle(Vector c, Vector b, Vector a, Texture *t)
-    : Plane(Vector(0, 0, 0), t, 0., 0., 0., 0., 0.) {
-  center = c;
-  Vector righta = (b - c);
-  textureX = righta.mag();
-  right = righta / textureX;
-  vect = right.cross(b - a).normalize();
+    : Shape(c, t, 0, 0, 0), a(a), b(b), c(c), e1(b - c), e2(a - c),
+      normal((c - a).cross(c - b).normalize()) {
+  d11 = e1.dot(e1);
+  d12 = e1.dot(e2);
+  d22 = e2.dot(e2);
+  invDenom = 1. / (d11 * d22 - d12 * d12);
+}
 
-  xsin = -right.z;
-  if (xsin < -1.)
-    xsin = -1;
-  else if (xsin > 1.)
-    xsin = 1.;
-  yaw = asin(xsin);
-  xcos = sqrt(1. - xsin * xsin);
+static double intersect(const Vector &c, Vector e1, Vector e2, const Ray &ray,
+                        double *u, double *v) {
+  Vector dir = ray.vector;
+  Vector s = ray.point - c;
 
-  zcos = right.x / xcos;
-  zsin = -right.y / xcos;
-  if (zsin < -1.)
-    zsin = -1;
-  else if (zsin > 1.)
-    zsin = 1.;
-  if (zcos < -1.)
-    zcos = -1;
-  else if (zcos > 1.)
-    zcos = 1.;
-  roll = asin(zsin);
+  Vector p = dir.cross(e2);
+  const double det = e1.dot(p);
+  if (det == 0.)
+    return inf;
+  const double inv = 1. / det;
 
-  ycos = vect.z / xcos;
-  if (ycos < -1.)
-    ycos = -1;
-  else if (ycos > 1.)
-    ycos = 1.;
-  pitch = acos(ycos);
-  ysin = sqrt(1 - ycos * ycos);
+  *u = s.dot(p) * inv;
+  if (*u < 0. || *u > 1.)
+    return inf;
 
-  up.x = -xsin * ysin * zcos + ycos * zsin;
-  up.y = ycos * zcos + xsin * ysin * zsin;
-  up.z = -xcos * ysin;
-  Vector temp = vect.cross(right);
-  Vector np = solveScalers(right, up, vect, a - c);
-  textureY = np.y;
-  thirdX = np.x;
+  Vector q = s.cross(e1);
+  *v = dir.dot(q) * inv;
+  if (*v < 0. || *u + *v > 1.)
+    return inf;
 
-  d = -vect.dot(center);
+  const double t = e2.dot(q) * inv;
+  return (t > 0.) ? t : inf;
 }
 
 double Triangle::getIntersection(const Ray &ray) {
-  double time = Plane::getIntersection(ray);
-  if (time == inf)
-    return time;
-  Vector dist =
-      solveScalers(right, up, vect, ray.point + ray.vector * time - center);
-  unsigned char tmp =
-      (thirdX - dist.x) * textureY + (thirdX - textureX) * (dist.y - textureY) <
-      0.0;
-  return ((tmp != (textureX * dist.y < 0.0)) ||
-          (tmp != (dist.x * textureY - thirdX * dist.y < 0.0)))
-             ? inf
-             : time;
+  double u, v;
+  return intersect(c, e1, e2, ray, &u, &v);
 }
 
 bool Triangle::getLightIntersection(const Ray &ray, double *fill) {
-  const double t = ray.vector.dot(vect);
-  const double norm = vect.dot(ray.point) + d;
-  const double r = -norm / t;
-  if (r <= 0. || r >= 1.)
-    return false;
-  Vector dist =
-      solveScalers(right, up, vect, ray.point + ray.vector * r - center);
-
-  unsigned char tmp =
-      (thirdX - dist.x) * textureY + (thirdX - textureX) * (dist.y - textureY) <
-      0.0;
-  if ((tmp != (textureX * dist.y < 0.0)) ||
-      (tmp != (dist.x * textureY - thirdX * dist.y < 0.0)))
+  double u, v;
+  const double r = intersect(c, e1, e2, ray, &u, &v);
+  if (r >= 1.)
     return false;
 
   if (texture->opacity > 1 - 1E-6)
     return true;
   unsigned char temp[4];
   double amb, op, ref;
-  texture->getColor(temp, &amb, &op, &ref, fix(dist.x / textureX - .5),
-                    fix(dist.y / textureY - .5));
+  texture->getColor(temp, &amb, &op, &ref, fix(u), fix(v));
   if (op > 1 - 1E-6)
     return true;
   fill[0] *= temp[0] / 255.;
@@ -91,3 +57,30 @@ bool Triangle::getLightIntersection(const Ray &ray, double *fill) {
   fill[2] *= temp[2] / 255.;
   return false;
 }
+
+void Triangle::move() {}
+
+void Triangle::getColor(unsigned char *toFill, double *am, double *op,
+                        double *ref, Autonoma *r, const Ray &ray,
+                        unsigned int depth) {
+  Vector p = ray.point - c;
+  const double dp1 = p.dot(e1);
+  const double dp2 = p.dot(e2);
+  const double u = (d22 * dp1 - d12 * dp2) * invDenom;
+  const double v = (d11 * dp2 - d12 * dp1) * invDenom;
+  texture->getColor(toFill, am, op, ref, fix(u), fix(v));
+}
+
+Vector Triangle::getNormal(Vector point) { return normal; }
+
+unsigned char Triangle::reversible() { return 1; }
+
+void Triangle::setAngles(double yaw, double pitch, double roll) {
+  Shape::setAngles(yaw, pitch, roll);
+}
+
+void Triangle::setYaw(double d) { Shape::setYaw(d); }
+
+void Triangle::setPitch(double d) { Shape::setPitch(d); }
+
+void Triangle::setRoll(double d) { Shape::setRoll(d); }

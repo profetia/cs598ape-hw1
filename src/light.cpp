@@ -1,6 +1,6 @@
 
-#include "camera.h"
 #include "light.h"
+#include "camera.h"
 #include "shape.h"
 
 Light::Light(const Vector &cente, unsigned char *colo) : center(cente) {
@@ -46,15 +46,9 @@ void getLight(double *tColor, Autonoma *aut, Vector point, Vector norm,
       if (flip && perc < 0)
         perc = -perc;
       if (perc > 0) {
-        tColor[0] += perc * (lightColor[0]);
-        tColor[1] += perc * (lightColor[0]);
-        tColor[2] += perc * (lightColor[0]);
-        if (tColor[0] > 1.)
-          tColor[0] = 1.;
-        if (tColor[1] > 1.)
-          tColor[1] = 1.;
-        if (tColor[2] > 1.)
-          tColor[2] = 1.;
+        tColor[0] += fmin(perc * (lightColor[0]), 1.);
+        tColor[1] += fmin(perc * (lightColor[1]), 1.);
+        tColor[2] += fmin(perc * (lightColor[2]), 1.);
       }
     }
   };
