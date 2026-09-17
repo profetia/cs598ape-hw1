@@ -42,7 +42,7 @@ void set(int i, int j, unsigned char r, unsigned char g, unsigned char b) {
 }
 
 void refresh(Autonoma *c) {
-#pragma omp parallel for schedule(guided)
+#pragma omp parallel for schedule(static, 16)
   for (int n = 0; n < H * W; ++n) {
     Vector ra = c->camera.forward +
                 ((double)(n % W) / W - .5) * ((c->camera.right)) +
