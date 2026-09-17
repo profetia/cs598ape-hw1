@@ -1,9 +1,9 @@
-FUNC := clang++
+FUNC := icpx
 output := -o 
 copt := -c 
 SRC_DIR := ./
 OBJ_DIR := ./
-FLAGS := -O3 -march=native -flto -g -Werror -ffast-math -fhonor-infinities
+FLAGS := -O3 -march=native -flto -g -Werror -fp-model=precise
 
 CPP_FILES := $(wildcard *.cpp)
 OBJ_FILES := $(addprefix $(OBJ_DIR),$(notdir $(CPP_FILES:.cpp=.obj)))

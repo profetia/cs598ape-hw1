@@ -1,7 +1,7 @@
-FUNC := clang++
+FUNC := icpx
 copt := -c 
 output :=-o 
-FLAGS := -O3 -march=native -flto -g -Werror -ffast-math -fhonor-infinities
+FLAGS := -O3 -march=native -flto -g -Werror -fp-model=precise
 OBJ_DIR :=./
 
 CPP_FILES := $(wildcard *.cpp)
