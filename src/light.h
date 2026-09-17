@@ -2,9 +2,11 @@
 #define __LIGHT_H__
 #include "Textures/colortexture.h"
 #include "Textures/texture.h"
+#include "bvh.h"
 #include "camera.h"
 #include "vector.h"
 
+#include <optional>
 #include <vector>
 
 class Light {
@@ -33,13 +35,15 @@ public:
   void addShape(Shape *s);
   void addLight(Light &&s);
 
+  void build();
+
   Triangle *nearestTriangle(const Ray &ray, double *t);
   Shape *nearestNonTriangle(const Ray &ray, double *t);
 
 private:
   std::vector<Shape *> others;
   std::vector<Triangle *> triangles;
-  std::vector<double> cx, cy, cz, e1x, e1y, e1z, e2x, e2y, e2z;
+  std::optional<BVH> bvh;
 };
 
 void getLight(double *toFill, Autonoma *aut, Vector point, Vector norm,

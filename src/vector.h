@@ -11,7 +11,11 @@
 class Vector {
 public:
   double x, y, z;
+  Vector();
   Vector(double a, double b, double c);
+
+  static Vector min(const Vector &a, const Vector &b);
+  static Vector max(const Vector &a, const Vector &b);
 
   void operator+=(const Vector);
   void operator-=(const Vector);

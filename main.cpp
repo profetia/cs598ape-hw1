@@ -362,6 +362,7 @@ Autonoma *createInputs(const char *inputFile) {
     }
   }
 
+  MAIN_DATA->build();
   return MAIN_DATA;
 }
 
@@ -392,7 +393,7 @@ void setFrame(const char *animateFile, Autonoma *MAIN_DATA, int frame,
                   &obj_num, field_type, &from, &to) != EOF) {
       double (*func)(double, double, double);
       if (streq(transition_type, "linear")) {
-        func = identity;
+        func = ::identity;
       } else if (streq(transition_type, "exp")) {
         func = expfn;
       } else if (streq(transition_type, "sin")) {
