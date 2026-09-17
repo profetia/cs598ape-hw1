@@ -86,6 +86,21 @@ Triangle *Autonoma::nearestTriangle(const Ray &ray, double *t) {
   return idx < n ? triangles[idx] : nullptr;
 }
 
+Shape *Autonoma::nearestNonTriangle(const Ray &ray, double *t) {
+  double best = inf;
+  Shape *nearest = nullptr;
+  for (Shape *s : others) {
+    const double time = s->getIntersection(ray);
+    if (time < best) {
+      best = time;
+      nearest = s;
+    }
+  }
+
+  *t = best;
+  return nearest;
+}
+
 void getLight(double *tColor, Autonoma *aut, Vector point, Vector norm,
               unsigned char flip) {
 

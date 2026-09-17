@@ -39,13 +39,12 @@ void calcColor(unsigned char *toFill, Autonoma *c, const Ray &ray,
   double curTime;
   Shape *curShape = c->nearestTriangle(ray, &curTime);
 
-  c->mapNonTriangles([&](Shape *s) {
-    double time = s->getIntersection(ray);
-    if (time < curTime) {
-      curTime = time;
-      curShape = s;
-    }
-  });
+  double otherTime;
+  Shape *other = c->nearestNonTriangle(ray, &otherTime);
+  if (otherTime < curTime) {
+    curTime = otherTime;
+    curShape = other;
+  }
 
   if (curShape == NULL) {
     double opacity, reflection, ambient;

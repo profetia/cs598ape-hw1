@@ -34,11 +34,7 @@ public:
   void addLight(Light &&s);
 
   Triangle *nearestTriangle(const Ray &ray, double *t);
-
-  template <typename F> void mapNonTriangles(F func) {
-    for (Shape *shape : others)
-      func(shape);
-  }
+  Shape *nearestNonTriangle(const Ray &ray, double *t);
 
 private:
   std::vector<Shape *> others;
