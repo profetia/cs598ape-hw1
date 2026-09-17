@@ -35,17 +35,16 @@ void Shape::setRoll(double c) {
 
 void calcColor(unsigned char *toFill, Autonoma *c, const Ray &ray,
                unsigned int depth) {
-  ShapeNode *t = c->listStart;
   double curTime = inf;
   Shape *curShape = NULL;
-  while (t != NULL) {
-    double time = t->data->getIntersection(ray);
+  for (Shape *s : c->shapes) {
+    double time = s->getIntersection(ray);
     if (time < curTime) {
       curTime = time;
-      curShape = t->data;
+      curShape = s;
     }
-    t = t->next;
   }
+
   if (curShape == NULL) {
     double opacity, reflection, ambient;
     Vector temp = ray.vector.normalize();
