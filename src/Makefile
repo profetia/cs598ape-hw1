@@ -3,7 +3,7 @@ output := -o
 copt := -c 
 SRC_DIR := ./
 OBJ_DIR := ./
-FLAGS := -O3 -march=native -flto -g -Werror -std=c++20
+FLAGS := -O3 -march=native -flto -g -Werror -std=c++20 -mprefer-vector-width=512
 
 CPP_FILES := $(wildcard *.cpp)
 OBJ_FILES := $(addprefix $(OBJ_DIR),$(notdir $(CPP_FILES:.cpp=.obj)))
