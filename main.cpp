@@ -427,12 +427,12 @@ void setFrame(const char *animateFile, Autonoma *MAIN_DATA, int frame,
           exit(1);
         }
       } else if (streq(object_type, "object")) {
-        if (obj_num >= MAIN_DATA->numShapes()) {
+        if (obj_num >= MAIN_DATA->shapes.size()) {
           printf("Could not find object number %d\n", obj_num);
           exit(1);
         }
 
-        Shape *shape = MAIN_DATA->indexShape(obj_num);
+        Shape *shape = MAIN_DATA->shapes[obj_num];
 
         if (streq(field_type, "yaw")) {
           shape->setYaw(result);

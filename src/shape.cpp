@@ -36,16 +36,15 @@ void Shape::setRoll(double c) {
 
 void calcColor(unsigned char *toFill, Autonoma *c, const Ray &ray,
                unsigned int depth) {
-  double curTime = inf;
-  Shape *curShape = NULL;
+  double curTime;
+  Shape *curShape = c->nearestTriangle(ray, &curTime);
 
-  c->mapShapes([&](auto *s) {
+  c->mapNonTriangles([&](Shape *s) {
     double time = s->getIntersection(ray);
     if (time < curTime) {
       curTime = time;
       curShape = s;
     }
-    return false;
   });
 
   if (curShape == NULL) {
