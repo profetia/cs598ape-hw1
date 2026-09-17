@@ -66,6 +66,11 @@ void Autonoma::addLight(Light *s) { lights.push_back(s); }
 void Autonoma::build() { bvh.emplace(triangles); }
 
 Triangle *Autonoma::nearestTriangle(const Ray &ray, double *t) {
+  if (triangles.empty()) {
+    *t = inf;
+    return nullptr;
+  }
+
   const uint32_t idx = bvh->nearestTriangle(ray, t);
   return idx < triangles.size() ? triangles[idx] : nullptr;
 }
