@@ -2,6 +2,7 @@
 #include "camera.h"
 #include "light.h"
 #include "shape.h"
+#include "triangle.h"
 #include <unordered_set>
 
 Light::Light(const Vector &cente, unsigned char *colo) : center(cente) {
@@ -47,8 +48,60 @@ Autonoma::~Autonoma() {
     delete texture;
 }
 
-void Autonoma::addShape(Shape *s) { shapes.push_back(s); }
+void Autonoma::addShape(Triangle *s) {
+  shapes.push_back(s);
+  triangles.push_back(s);
+  allOpaque &= s->texture->opaque();
+  bvh.reset();
+}
+
+void Autonoma::addShape(Shape *s) {
+  shapes.push_back(s);
+  others.push_back(s);
+  allOpaque &= s->texture->opaque();
+}
+
 void Autonoma::addLight(Light *s) { lights.push_back(s); }
+
+void Autonoma::build() { bvh.emplace(triangles); }
+
+Triangle *Autonoma::nearestTriangle(const Ray &ray, double *t) {
+  const uint32_t idx = bvh->nearestTriangle(ray, t);
+  return idx < triangles.size() ? triangles[idx] : nullptr;
+}
+
+Shape *Autonoma::nearestNonTriangle(const Ray &ray, double *t) {
+  double best = inf;
+  Shape *nearest = nullptr;
+  for (Shape *s : others) {
+    const double time = s->getIntersection(ray);
+    if (time < best) {
+      best = time;
+      nearest = s;
+    }
+  }
+
+  *t = best;
+  return nearest;
+}
+
+bool Autonoma::blocked(const Ray &ray, double *lightColor) {
+#ifndef NO_FAST_SHADOW
+  if (allOpaque) {
+    double t;
+    if (nearestTriangle(ray, &t) != nullptr && t < 1.)
+      return true;
+    for (Shape *s : others)
+      if (s->getLightIntersection(ray, lightColor))
+        return true;
+    return false;
+  }
+#endif
+  for (Shape *s : shapes)
+    if (s->getLightIntersection(ray, lightColor))
+      return true;
+  return false;
+}
 
 void getLight(double *tColor, Autonoma *aut, Vector point, Vector norm,
               unsigned char flip) {
@@ -61,30 +114,16 @@ void getLight(double *tColor, Autonoma *aut, Vector point, Vector norm,
     lightColor[2] = light->color[2] / 255.;
     Vector ra = light->center - point;
 
-    bool hit = false;
-    for (Shape *s : aut->shapes) {
-      if (s->getLightIntersection(Ray(point + ra * .01, ra), lightColor)) {
-        hit = true;
-        break;
-      }
-    }
+    if (aut->blocked(Ray(point + ra * 0.01, ra), lightColor))
+      continue;
 
     double perc = (norm.dot(ra) / (ra.mag() * norm.mag()));
-    if (!hit) {
-      if (flip && perc < 0)
-        perc = -perc;
-      if (perc > 0) {
-
-        tColor[0] += perc * (lightColor[0]);
-        tColor[1] += perc * (lightColor[0]);
-        tColor[2] += perc * (lightColor[0]);
-        if (tColor[0] > 1.)
-          tColor[0] = 1.;
-        if (tColor[1] > 1.)
-          tColor[1] = 1.;
-        if (tColor[2] > 1.)
-          tColor[2] = 1.;
-      }
+    if (flip && perc < 0)
+      perc = -perc;
+    if (perc > 0) {
+      tColor[0] = fmin(tColor[0] + perc * lightColor[0], 1.);
+      tColor[1] = fmin(tColor[1] + perc * lightColor[0], 1.);
+      tColor[2] = fmin(tColor[2] + perc * lightColor[0], 1.);
     }
   }
 }

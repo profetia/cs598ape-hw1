@@ -2,9 +2,11 @@
 #define __LIGHT_H__
 #include "Textures/colortexture.h"
 #include "Textures/texture.h"
+#include "bvh.h"
 #include "camera.h"
 #include "vector.h"
 
+#include <optional>
 #include <vector>
 
 class Light {
@@ -17,6 +19,7 @@ public:
 };
 
 class Shape;
+class Triangle;
 
 class Autonoma {
 public:
@@ -25,13 +28,26 @@ public:
   unsigned int depth;
 
   std::vector<Shape *> shapes;
-
   std::vector<Light *> lights;
+  bool allOpaque = true;
   Autonoma(const Camera &c);
   Autonoma(const Camera &c, Texture *tex);
   ~Autonoma();
+
+  void addShape(Triangle *s);
   void addShape(Shape *s);
   void addLight(Light *s);
+
+  void build();
+
+  Triangle *nearestTriangle(const Ray &ray, double *t);
+  Shape *nearestNonTriangle(const Ray &ray, double *t);
+  bool blocked(const Ray &ray, double *lightColor);
+
+private:
+  std::vector<Shape *> others;
+  std::vector<Triangle *> triangles;
+  std::optional<BVH> bvh;
 };
 
 void getLight(double *toFill, Autonoma *aut, Vector point, Vector norm,

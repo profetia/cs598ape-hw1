@@ -1,4 +1,5 @@
 #include "shape.h"
+#include "triangle.h"
 
 Shape::Shape(const Vector &c, Texture *t, double ya, double pi, double ro)
     : center(c), texture(t), yaw(ya), pitch(pi), roll(ro) {};
@@ -35,14 +36,14 @@ void Shape::setRoll(double c) {
 
 void calcColor(unsigned char *toFill, Autonoma *c, const Ray &ray,
                unsigned int depth) {
-  double curTime = inf;
-  Shape *curShape = NULL;
-  for (Shape *s : c->shapes) {
-    double time = s->getIntersection(ray);
-    if (time < curTime) {
-      curTime = time;
-      curShape = s;
-    }
+  double curTime;
+  Shape *curShape = c->nearestTriangle(ray, &curTime);
+
+  double otherTime;
+  Shape *other = c->nearestNonTriangle(ray, &otherTime);
+  if (otherTime < curTime) {
+    curTime = otherTime;
+    curShape = other;
   }
 
   if (curShape == NULL) {

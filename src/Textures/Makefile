@@ -1,7 +1,7 @@
 FUNC := icpx
 copt := -c 
 output :=-o 
-FLAGS := -O3 -march=native -flto -g -Werror
+FLAGS := -O3 -march=native -flto -g -Werror -std=c++20
 OBJ_DIR :=./
 
 CPP_FILES := $(wildcard *.cpp)

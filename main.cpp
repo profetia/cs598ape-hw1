@@ -41,7 +41,7 @@ void set(int i, int j, unsigned char r, unsigned char g, unsigned char b) {
 }
 
 void refresh(Autonoma *c) {
-#pragma omp parallel for schedule(guided)
+#pragma omp parallel for schedule(static, 16)
   for (int n = 0; n < H * W; ++n) {
     Vector ra = c->camera.forward +
                 ((double)(n % W) / W - .5) * ((c->camera.right)) +
@@ -364,6 +364,7 @@ Autonoma *createInputs(const char *inputFile) {
     fclose(f);
   }
 
+  MAIN_DATA->build();
   return MAIN_DATA;
 }
 
@@ -394,7 +395,7 @@ void setFrame(const char *animateFile, Autonoma *MAIN_DATA, int frame,
                   &obj_num, field_type, &from, &to) != EOF) {
       double (*func)(double, double, double);
       if (streq(transition_type, "linear")) {
-        func = identity;
+        func = ::identity;
       } else if (streq(transition_type, "exp")) {
         func = expfn;
       } else if (streq(transition_type, "sin")) {

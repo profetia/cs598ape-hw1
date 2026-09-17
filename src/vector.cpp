@@ -7,7 +7,16 @@
 #include "vector.h"
 #include <stddef.h>
 
+Vector::Vector() : x(0.), y(0.), z(0.) {}
 Vector::Vector(double a, double b, double c) : x(a), y(b), z(c) {}
+
+Vector Vector::min(const Vector &a, const Vector &b) {
+  return Vector(std::fmin(a.x, b.x), std::fmin(a.y, b.y), std::fmin(a.z, b.z));
+}
+
+Vector Vector::max(const Vector &a, const Vector &b) {
+  return Vector(std::fmax(a.x, b.x), std::fmax(a.y, b.y), std::fmax(a.z, b.z));
+}
 void Vector::operator-=(const Vector rhs) {
   x -= rhs.x;
   y -= rhs.y;

@@ -96,10 +96,9 @@ subprocess.run(
 )
 
 if dirty:
-    patch = subprocess.check_output(
-        ["git", "diff", "HEAD", "--binary"], cwd=root
-    )
-    subprocess.run(["git", "apply"], cwd=worktree, input=patch, check=True)
+    patch = subprocess.check_output(["git", "diff", "HEAD", "--binary"], cwd=root)
+    if patch:
+        subprocess.run(["git", "apply"], cwd=worktree, input=patch, check=True)
     untracked = subprocess.check_output(
         ["git", "ls-files", "--others", "--exclude-standard", "-z"],
         cwd=root
