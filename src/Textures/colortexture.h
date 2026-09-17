@@ -37,7 +37,8 @@ public:
                double ref, double amb);
   ColorTexture(char *def);
   void getColor(unsigned char *toFill, double *amb, double *op, double *ref,
-                double x, double y);
+                double x, double y) override;
+  bool opaque() const override { return opacity > 1 - 1E-6; }
 };
 
 #endif

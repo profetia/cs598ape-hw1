@@ -28,6 +28,7 @@ public:
 
   std::vector<Shape *> shapes;
   std::vector<Light> lights;
+  bool allOpaque = true;
   Autonoma(const Camera &c);
   Autonoma(const Camera &c, Texture *tex);
 
@@ -39,6 +40,7 @@ public:
 
   Triangle *nearestTriangle(const Ray &ray, double *t);
   Shape *nearestNonTriangle(const Ray &ray, double *t);
+  bool blocked(const Ray &ray, double *lightColor);
 
 private:
   std::vector<Shape *> others;
