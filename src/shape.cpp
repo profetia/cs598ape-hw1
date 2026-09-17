@@ -1,4 +1,5 @@
 #include "shape.h"
+#include "triangle.h"
 
 Shape::Shape(const Vector &c, Texture *t, double ya, double pi, double ro)
     : center(c), texture(t), yaw(ya), pitch(pi), roll(ro) {};
@@ -37,13 +38,15 @@ void calcColor(unsigned char *toFill, Autonoma *c, const Ray &ray,
                unsigned int depth) {
   double curTime = inf;
   Shape *curShape = NULL;
-  for (Shape *s : c->shapes) {
+
+  c->mapShapes([&](auto *s) {
     double time = s->getIntersection(ray);
     if (time < curTime) {
       curTime = time;
       curShape = s;
     }
-  }
+    return false;
+  });
 
   if (curShape == NULL) {
     double opacity, reflection, ambient;

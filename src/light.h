@@ -16,6 +16,7 @@ public:
 };
 
 class Shape;
+class Triangle;
 
 class Autonoma {
 public:
@@ -23,14 +24,33 @@ public:
   Texture *skybox;
   unsigned int depth;
 
-  std::vector<Shape *> shapes;
-
   std::vector<Light> lights;
   Autonoma(const Camera &c);
   Autonoma(const Camera &c, Texture *tex);
 
+  void addShape(Triangle *s);
   void addShape(Shape *s);
   void addLight(Light &&s);
+
+  int numShapes() { return shapes.size() + triangles.size(); }
+  Shape *indexShape(int idx) {
+    if (idx < triangles.size())
+      return (Shape *)triangles[idx];
+    return shapes[idx - triangles.size()];
+  }
+
+  template <typename F> void mapShapes(F func) {
+    for (Triangle *triangle : triangles)
+      if (func(triangle))
+        return;
+    for (Shape *shape : shapes)
+      if (func(shape))
+        return;
+  };
+
+private:
+  std::vector<Triangle *> triangles;
+  std::vector<Shape *> shapes;
 };
 
 void getLight(double *toFill, Autonoma *aut, Vector point, Vector norm,
