@@ -38,16 +38,16 @@ The following commands reproduce the results presented in the report.
 
 The overall performance figure in the report compares the baseline, O1
 compiler configuration, O2 closest-intersection scan, O3 work-reduction
-changes, and O4 OpenMP parallelization:
+changes, O4 OpenMP parallelization, and O5 BVH acceleration:
 
 ```bash
 ./benchmark.py \
-  --commits 19bbc81 8ee75ee 0a2ff13 1c64c5c 87c372a \
+  --commits 19bbc81 8ee75ee 0a2ff13 1c64c5c 87c372a 65c3844 \
   --ops pianoroom globe --csv
 ```
 
 The Sphere baseline took about 74 minutes for one run on our VM. Baseline and
-O1 Elephant did not finish within one hour.
+O1 Elephant did not finish within two hours.
 
 ### Compiler Selection
 
@@ -59,6 +59,16 @@ that order:
 ./benchmark.py \
   --commits 7e4b8ee 48228a7 8ee75ee d617129 7074d3f \
   --ops pianoroom globe --csv
+```
+
+To compare the Globe output from Clang and default icpx:
+
+```bash
+./benchmark.py --commits 48228a7 --ops globe
+./benchmark.py --commits 8ee75ee --ops globe
+./imagediff.py \
+  'runs/<clang-run>/worktree/output/bench-globe*.ppm' \
+  'runs/<icpx-run>/worktree/output/bench-globe*.ppm'
 ```
 
 ### Profiling-Guided Optimization

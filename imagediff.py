@@ -18,8 +18,10 @@ def read_word(f):
 
 def read_ppm(filename):
     f = open(filename, "rb")
+    read_word(f)
     width = int(read_word(f))
     height = int(read_word(f))
+    read_word(f)
     pixels = f.read()
     f.close()
     return width, height, pixels
