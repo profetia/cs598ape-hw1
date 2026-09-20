@@ -91,7 +91,6 @@ Shape *Autonoma::nearestNonTriangle(const Ray &ray, double *t) {
 }
 
 bool Autonoma::blocked(const Ray &ray, double *lightColor) {
-#ifndef NO_FAST_SHADOW
   if (allOpaque) {
     double t;
     if (nearestTriangle(ray, &t) != nullptr && t < 1.)
@@ -101,7 +100,6 @@ bool Autonoma::blocked(const Ray &ray, double *lightColor) {
         return true;
     return false;
   }
-#endif
   for (Shape *s : shapes)
     if (s->getLightIntersection(ray, lightColor))
       return true;

@@ -573,7 +573,11 @@ int main(int argc, const char **argv) {
 
   DATA = (unsigned char *)malloc(W * H * 3 * sizeof(unsigned char));
 
+  struct timeval inputStart, inputEnd;
+  gettimeofday(&inputStart, NULL);
   Autonoma *MAIN_DATA = createInputs(inFile);
+  gettimeofday(&inputEnd, NULL);
+  printf("Time to read input=%0.6f seconds\n", tdiff(&inputStart, &inputEnd));
 
   int frame;
   char command[200];

@@ -57,10 +57,10 @@ def elephant_input(worktree):
     target.write_text(text)
 
 
-def show_table(names, rows):
-    table = [["commit"] + names]
+def show_table(columns, rows):
+    table = [["commit"] + columns]
     for commit, values in rows:
-        table.append([commit] + ["%.6f" % values[name] for name in names])
+        table.append([commit] + ["%.6f" % values[column] for column in columns])
 
     widths = []
     for column in range(len(table[0])):
@@ -110,6 +110,8 @@ if dirty:
 
 rows = []
 timer = re.compile(r"Total time to create images=([0-9.]+) seconds")
+reader = re.compile(r"Time to read input=([0-9.]+) seconds")
+columns = [column for name in names for column in (name, name + " input")]
 
 for commit in commits:
     commit_id = subprocess.check_output(
@@ -131,24 +133,29 @@ for commit in commits:
     print("\n" + label + " (" + commit_id[:12] + ")")
     for name in names:
         times = []
+        inputs = []
         for number in range(runs):
             output = docker(worktree, ops[name], True)
             seconds = float(timer.search(output).group(1))
+            read = reader.search(output)
+            read = float(read.group(1)) if read else float("nan")
             times.append(seconds)
-            print("  %-10s %2d/%d  %.6f" %
-                  (name, number + 1, runs, seconds))
+            inputs.append(read)
+            print("  %-10s %2d/%d  %.6f  input %.6f" %
+                  (name, number + 1, runs, seconds, read))
         values[name] = min(times)
+        values[name + " input"] = min(inputs)
 
     rows.append((label + " (" + commit_id[:12] + ")", values))
 
 print()
-show_table(names, rows)
+show_table(columns, rows)
 
 if args.csv:
     csv_file = run_dir / "results.csv"
     with csv_file.open("w", newline="") as output:
         writer = csv.writer(output)
-        writer.writerow(["commit"] + names)
+        writer.writerow(["commit"] + columns)
         for commit, values in rows:
-            writer.writerow([commit] + [values[name] for name in names])
+            writer.writerow([commit] + [values[column] for column in columns])
     print("\n" + str(csv_file))
